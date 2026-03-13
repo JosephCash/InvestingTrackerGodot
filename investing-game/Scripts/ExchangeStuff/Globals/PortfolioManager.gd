@@ -12,7 +12,10 @@ var crypto_api: CoinGeckoProvider
 var fiat_api: FrankfurterProvider
 
 func _ready():
-	cached_assets = SaveManager.load_crypto_cache()
+	cached_assets = SaveManager.load_exchange_cache()
+	
+	# Podpinamy sygnał zmiany waluty z SettingsManager
+	SettingsManager.base_currency_changed.connect(_on_base_currency_changed)
 	
 	# Inicjujemy Kucharza Krypto
 	crypto_api = CoinGeckoProvider.new()
@@ -48,5 +51,11 @@ func request_fiat_price(fiat_id: String):
 
 func _on_asset_fetched(asset: ExchangeAssetData):
 	cached_assets[asset.id] = asset 
-	SaveManager.save_crypto_cache(cached_assets) 
+	SaveManager.save_exchange_cache(cached_assets) 
 	portfolio_updated.emit(asset)
+
+# Funkcja wywoływana, gdy zmienimy walutę w SettingsManager
+func _on_base_currency_changed(_new_currency: String):
+	print("[PortfolioManager] Zmieniono walutę bazową. Czyszczę stary cache!")
+	cached_assets.clear() # Opróżniamy słownik w pamięci
+	SaveManager.save_exchange_cache(cached_assets) # Nadpisujemy stary plik zapisu pustym słownikiem

@@ -1,27 +1,21 @@
 extends DataProvider
 class_name CoinGeckoProvider
 
-const BASE_URL = "https://api.coingecko.com/api/v3/simple/price?ids=%s&vs_currencies=usd"
-
 func fetch_price(asset_id: String) -> void:
-	var url = BASE_URL % asset_id
+	# Pobieramy dynamicznie walutę bazową (np. "pln")
+	var vs_currency = SettingsManager.base_currency.to_lower()
+	var url = "https://api.coingecko.com/api/v3/simple/price?ids=%s&vs_currencies=%s" % [asset_id, vs_currency]
 	
-	# Tworzymy jednorazowy węzeł do pobrania danych
 	var http_request = HTTPRequest.new()
 	add_child(http_request)
-	
-	# Podpinamy sygnał i używamy .bind(), aby przekazać ten konkretny węzeł do funkcji odbiorczej
-	http_request.request_completed.connect(_on_request_completed.bind(http_request))
+	http_request.request_completed.connect(_on_request_completed.bind(http_request, vs_currency))
 	
 	var error = http_request.request(url)
 	if error != OK:
 		fetch_failed.emit("Błąd inicjalizacji zapytania dla: " + asset_id)
-		http_request.queue_free() # Usuwamy węzeł w razie błędu
+		http_request.queue_free()
 
-# Zauważ dodany na końcu argument 'http_request', który przyszedł dzięki .bind()
-func _on_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray, http_request: HTTPRequest) -> void:
-	
-	# Od razu usuwamy zużyty węzeł, żeby nie zaśmiecał pamięci!
+func _on_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray, http_request: HTTPRequest, target_currency: String) -> void:
 	http_request.queue_free()
 	
 	if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
@@ -38,7 +32,8 @@ func _on_request_completed(result: int, response_code: int, _headers: PackedStri
 			return
 			
 		var first_key = data.keys()[0] 
-		var price = data[first_key]["usd"]
+		# Zamiast "usd" pobieramy wartość dla target_currency
+		var price = data[first_key][target_currency] 
 		
 		var new_asset = ExchangeAssetData.new(first_key, first_key.to_upper(), price)
 		fetch_successful.emit(new_asset)

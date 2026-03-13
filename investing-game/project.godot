@@ -17,9 +17,9 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-PortfolioManager="*uid://ctne2cosy6pfu"
-SaveManager="*uid://b54xu0ky4ckqe"
 SettingsManager="*uid://cs2lfvf0vsnvr"
+SaveManager="*uid://b54xu0ky4ckqe"
+PortfolioManager="*uid://ctne2cosy6pfu"
 
 [physics]
 
