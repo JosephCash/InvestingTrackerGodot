@@ -10,16 +10,17 @@ config_version=5
 
 [application]
 
-config/name="InvestingGame"
+config/name="Investor Notes"
 run/main_scene="uid://cufyo18yddbos"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
 
-SettingsManager="*uid://cs2lfvf0vsnvr"
-SaveManager="*uid://b54xu0ky4ckqe"
-PortfolioManager="*uid://ctne2cosy6pfu"
+SettingsManager="*res://Scripts/Backend/Managers/SettingsManager.gd"
+SaveManager="*res://Scripts/Backend/Persistence/SaveManager.gd"
+PortfolioManager="*res://Scripts/Backend/Managers/PortfolioManager.gd"
+MacroDataManager="*res://Scripts/Backend/Managers/MacroDataManager.gd"
 
 [physics]
 
