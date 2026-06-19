@@ -1,6 +1,167 @@
-[gd_scene format=3 uid="uid://cufyo18yddbos"]
+[gd_scene load_steps=3 format=3 uid="uid://cufyo18yddbos"]
 
 [ext_resource type="Script" uid="uid://cfp8u62tyuxvj" path="res://Scripts/main.gd" id="1_r150o"]
+[ext_resource type="Script" path="res://Scripts/UI/AppShell.gd" id="2_appshell"]
 
-[node name="Main" type="Node"]
+[node name="Main" type="Node" unique_id=1947189575]
 script = ExtResource("1_r150o")
+
+[node name="AppRoot" type="Control" parent="." unique_id=1494155390]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_appshell")
+
+[node name="MainLayout" type="VBoxContainer" parent="AppRoot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="HeaderBar" type="PanelContainer" parent="AppRoot/MainLayout"]
+custom_minimum_size = Vector2(0, 104)
+layout_mode = 2
+
+[node name="HeaderMargin" type="MarginContainer" parent="AppRoot/MainLayout/HeaderBar"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 12
+
+[node name="HeaderRow" type="HBoxContainer" parent="AppRoot/MainLayout/HeaderBar/HeaderMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HeaderLeft" type="VBoxContainer" parent="AppRoot/MainLayout/HeaderBar/HeaderMargin/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="HeaderTitleLabel" type="Label" parent="AppRoot/MainLayout/HeaderBar/HeaderMargin/HeaderRow/HeaderLeft"]
+layout_mode = 2
+text = "Investor Notes"
+theme_override_font_sizes/font_size = 24
+
+[node name="HeaderContextLabel" type="Label" parent="AppRoot/MainLayout/HeaderBar/HeaderMargin/HeaderRow/HeaderLeft"]
+layout_mode = 2
+text = "Wszystkie portfele"
+theme_override_font_sizes/font_size = 14
+
+[node name="HeaderRight" type="VBoxContainer" parent="AppRoot/MainLayout/HeaderBar/HeaderMargin/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_constants/separation = 3
+alignment = 1
+
+[node name="HeaderValueLabel" type="Label" parent="AppRoot/MainLayout/HeaderBar/HeaderMargin/HeaderRow/HeaderRight"]
+layout_mode = 2
+text = "0.00 USD"
+horizontal_alignment = 2
+theme_override_font_sizes/font_size = 18
+
+[node name="HeaderResultLabel" type="Label" parent="AppRoot/MainLayout/HeaderBar/HeaderMargin/HeaderRow/HeaderRight"]
+layout_mode = 2
+text = "0.00 USD (0.00%)"
+horizontal_alignment = 2
+theme_override_font_sizes/font_size = 13
+
+[node name="ContentHost" type="PanelContainer" parent="AppRoot/MainLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ContentMargin" type="MarginContainer" parent="AppRoot/MainLayout/ContentHost"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="ContentRoot" type="Control" parent="AppRoot/MainLayout/ContentHost/ContentMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="FooterBar" type="PanelContainer" parent="AppRoot/MainLayout"]
+custom_minimum_size = Vector2(0, 84)
+layout_mode = 2
+
+[node name="FooterMargin" type="MarginContainer" parent="AppRoot/MainLayout/FooterBar"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="FooterTabs" type="HBoxContainer" parent="AppRoot/MainLayout/FooterBar/FooterMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DashboardButton" type="Button" parent="AppRoot/MainLayout/FooterBar/FooterMargin/FooterTabs"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "Start"
+
+[node name="PortfolioButton" type="Button" parent="AppRoot/MainLayout/FooterBar/FooterMargin/FooterTabs"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "Portfel"
+
+[node name="AnalysisButton" type="Button" parent="AppRoot/MainLayout/FooterBar/FooterMargin/FooterTabs"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "Analizy"
+
+[node name="SettingsButton" type="Button" parent="AppRoot/MainLayout/FooterBar/FooterMargin/FooterTabs"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "Ustaw."
+
+[node name="PopupLayer" type="CanvasLayer" parent="AppRoot"]
+
+[node name="PopupOverlay" type="Control" parent="AppRoot/PopupLayer"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PopupDim" type="ColorRect" parent="AppRoot/PopupLayer/PopupOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="PopupHost" type="MarginContainer" parent="AppRoot/PopupLayer/PopupOverlay"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -360.0
+offset_right = -16.0
+offset_bottom = -16.0
+
+[node name="PopupContent" type="PanelContainer" parent="AppRoot/PopupLayer/PopupOverlay/PopupHost"]
+layout_mode = 2

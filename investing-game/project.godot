@@ -21,8 +21,13 @@ SettingsManager="*res://Scripts/Backend/Managers/SettingsManager.gd"
 SaveManager="*res://Scripts/Backend/Persistence/SaveManager.gd"
 PortfolioManager="*res://Scripts/Backend/Managers/PortfolioManager.gd"
 PortfolioDataManager="*res://Scripts/Backend/Managers/PortfolioDataManager.gd"
-MarketAnalysisManager="*res://Scripts/Backend/Managers/MarketAnalysisManager.gd"
 MacroDataManager="*res://Scripts/Backend/Managers/MacroDataManager.gd"
+MarketAnalysisManager="*res://Scripts/Backend/Managers/MarketAnalysisManager.gd"
+
+[display]
+
+window/size/viewport_width=720
+window/size/viewport_height=1280
 
 [physics]
 
