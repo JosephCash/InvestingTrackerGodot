@@ -47,6 +47,9 @@ func fetch_latest_monthly_cpi() -> void:
 
 	_monthly_cpi_request_active = true
 	_monthly_cpi_candidates = _build_monthly_cpi_candidates()
+	if not _monthly_cpi_candidates.is_empty():
+		print("[API] GUS monthly CPI first checked period: ", _candidate_label(_monthly_cpi_candidates[0]))
+
 	_request_next_monthly_cpi_candidate()
 
 
@@ -133,6 +136,7 @@ func _on_monthly_cpi_request_completed(
 		return
 
 	if response_code == 404:
+		print("[API] No GUS monthly CPI data for: %04d-%02d" % [year, month])
 		_schedule_next_monthly_cpi_candidate()
 		return
 
@@ -152,6 +156,7 @@ func _on_monthly_cpi_request_completed(
 
 	var inflation := _parse_monthly_cpi(json.data, year, month, _period_id)
 	if inflation == null:
+		print("[API] No valid GUS monthly CPI data for: %04d-%02d" % [year, month])
 		_schedule_next_monthly_cpi_candidate()
 		return
 
@@ -313,6 +318,13 @@ func _build_monthly_cpi_candidates() -> Array[Dictionary]:
 			year -= 1
 
 	return candidates
+
+
+func _candidate_label(candidate: Dictionary) -> String:
+	return "%04d-%02d" % [
+		int(candidate.get("year", 0)),
+		int(candidate.get("month", 0))
+	]
 
 
 func _month_to_dbw_period_id(month: int) -> int:

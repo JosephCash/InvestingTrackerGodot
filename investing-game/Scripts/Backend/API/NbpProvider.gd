@@ -7,7 +7,7 @@ const PLN_CODE := "PLN"
 
 func fetch_price(asset_id: String) -> void:
 	var symbol := asset_id.strip_edges().to_upper()
-	var quote_currency := SettingsManager.base_currency.to_upper()
+	var quote_currency := SettingsManager.get_base_currency()
 
 	if symbol.is_empty():
 		fetch_failed.emit(asset_id, "NBP fiat symbol is empty.")

@@ -10,7 +10,7 @@ const SETTINGS_FILE_PATH := "user://settings.json"
 func save_exchange_cache(cached_assets: Dictionary) -> void:
 	var dict_to_save := {
 		"schema_version": CACHE_SCHEMA_VERSION,
-		"cache_currency": SettingsManager.base_currency,
+		"cache_currency": SettingsManager.get_base_currency(),
 		"assets": {}
 	}
 
@@ -25,7 +25,8 @@ func save_exchange_cache(cached_assets: Dictionary) -> void:
 		return
 
 	file.store_string(JSON.stringify(dict_to_save))
-	print("[SaveManager] Saved exchange cache for currency: ", SettingsManager.base_currency)
+	file.flush()
+	print("[SaveManager] Saved exchange cache for currency: ", SettingsManager.get_base_currency())
 
 
 func load_exchange_cache() -> Dictionary:
@@ -49,7 +50,8 @@ func load_exchange_cache() -> Dictionary:
 		print("[SaveManager] Unsupported exchange cache format. Ignoring file.")
 		return restored_assets
 
-	if parsed_data["cache_currency"] != SettingsManager.base_currency:
+	var cache_currency := MoneyData.normalize_currency(str(parsed_data["cache_currency"]))
+	if cache_currency != SettingsManager.get_base_currency():
 		print("[SaveManager] Cache currency differs from current currency. Ignoring old cache.")
 		return restored_assets
 
@@ -179,6 +181,7 @@ func save_settings(settings_dict: Dictionary) -> void:
 		return
 
 	file.store_string(JSON.stringify(settings_dict))
+	file.flush()
 	print("[SaveManager] Saved settings.")
 
 
@@ -253,7 +256,7 @@ func _migrate_legacy_exchange_asset(data: Dictionary) -> AssetData:
 	asset.symbol = str(data["symbol"]).to_upper()
 	asset.name = asset.symbol
 	asset.asset_type = _guess_legacy_asset_type(asset.id)
-	asset.quote_currency = SettingsManager.base_currency.to_upper()
+	asset.quote_currency = SettingsManager.get_base_currency()
 	asset.last_updated = float(data.get("last_updated", 0.0))
 
 	var price_date := _date_string_from_unix_time(asset.last_updated)

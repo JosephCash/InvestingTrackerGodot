@@ -1,7 +1,7 @@
 extends Resource
 class_name PortfolioData
 
-const SCHEMA_VERSION := 2
+const SCHEMA_VERSION := 3
 
 const TYPE_REGULAR := "regular"
 const TYPE_IKE := "ike"
@@ -14,6 +14,7 @@ const TYPE_IKZE := "ikze"
 @export var base_currency: String = "PLN"
 @export var deposits: Array[PortfolioDepositData] = []
 @export var value_snapshots: Array[PortfolioSnapshotData] = []
+@export var bond_lots: Array[BondLotData] = []
 
 
 func add_deposit(date: String, amount: float, currency: String = "", note: String = "") -> Error:
@@ -41,6 +42,21 @@ func add_value_snapshot(date: String, total_value: float, currency: String = "",
 		return ERR_INVALID_PARAMETER
 
 	value_snapshots.append(snapshot)
+	return OK
+
+
+func add_bond_lot(bond: BondLotData) -> Error:
+	if bond == null:
+		return ERR_INVALID_PARAMETER
+
+	var errors := bond.validate()
+	if not errors.is_empty():
+		return ERR_INVALID_PARAMETER
+
+	if get_bond_lot(bond.id) != null:
+		return ERR_ALREADY_IN_USE
+
+	bond_lots.append(bond)
 	return OK
 
 
@@ -151,6 +167,45 @@ func get_value_snapshot(snapshot_id: String) -> PortfolioSnapshotData:
 	return null
 
 
+func update_bond_lot(bond_id: String, updated_bond: BondLotData) -> Error:
+	var bond := get_bond_lot(bond_id)
+	if bond == null:
+		return ERR_DOES_NOT_EXIST
+
+	if updated_bond == null:
+		return ERR_INVALID_PARAMETER
+
+	updated_bond.id = bond.id
+	var errors := updated_bond.validate()
+	if not errors.is_empty():
+		return ERR_INVALID_PARAMETER
+
+	var index := bond_lots.find(bond)
+	if index < 0:
+		return ERR_DOES_NOT_EXIST
+
+	bond_lots[index] = updated_bond
+	return OK
+
+
+func delete_bond_lot(bond_id: String) -> Error:
+	for index in range(bond_lots.size()):
+		var bond := bond_lots[index]
+		if bond != null and bond.id == bond_id:
+			bond_lots.remove_at(index)
+			return OK
+
+	return ERR_DOES_NOT_EXIST
+
+
+func get_bond_lot(bond_id: String) -> BondLotData:
+	for bond in bond_lots:
+		if bond != null and bond.id == bond_id:
+			return bond
+
+	return null
+
+
 func validate() -> PackedStringArray:
 	var errors := PackedStringArray()
 
@@ -178,6 +233,12 @@ func validate() -> PackedStringArray:
 		else:
 			errors.append_array(snapshot.validate())
 
+	for bond in bond_lots:
+		if bond == null:
+			errors.append("Bond lot is null.")
+		else:
+			errors.append_array(bond.validate())
+
 	return errors
 
 
@@ -192,6 +253,11 @@ func to_dict() -> Dictionary:
 		if snapshot != null:
 			snapshot_dicts.append(snapshot.to_dict())
 
+	var bond_dicts: Array[Dictionary] = []
+	for bond in bond_lots:
+		if bond != null:
+			bond_dicts.append(bond.to_dict())
+
 	return {
 		"schema_version": SCHEMA_VERSION,
 		"id": id.strip_edges(),
@@ -200,7 +266,8 @@ func to_dict() -> Dictionary:
 		"icon_name": icon_name.strip_edges(),
 		"base_currency": MoneyData.normalize_currency(base_currency),
 		"deposits": deposit_dicts,
-		"value_snapshots": snapshot_dicts
+		"value_snapshots": snapshot_dicts,
+		"bond_lots": bond_dicts
 	}
 
 
@@ -214,6 +281,7 @@ static func from_dict(data: Dictionary) -> PortfolioData:
 	portfolio.base_currency = MoneyData.normalize_currency(str(data.get("base_currency", "PLN")))
 	portfolio.deposits = PortfolioData._copy_deposit_array(data.get("deposits", []))
 	portfolio.value_snapshots = PortfolioData._copy_snapshot_array(data.get("value_snapshots", []))
+	portfolio.bond_lots = PortfolioData._copy_bond_lot_array(data.get("bond_lots", []))
 
 	return portfolio
 
@@ -240,6 +308,19 @@ static func _copy_snapshot_array(value: Variant) -> Array[PortfolioSnapshotData]
 				result.append(item)
 			elif item is Dictionary:
 				result.append(PortfolioSnapshotData.from_dict(item))
+
+	return result
+
+
+static func _copy_bond_lot_array(value: Variant) -> Array[BondLotData]:
+	var result: Array[BondLotData] = []
+
+	if value is Array:
+		for item in value:
+			if item is BondLotData:
+				result.append(item)
+			elif item is Dictionary:
+				result.append(BondLotData.from_dict(item))
 
 	return result
 

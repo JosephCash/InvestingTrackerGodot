@@ -112,12 +112,25 @@ func load_all_portfolios() -> OperationResult:
 
 func delete_portfolio(portfolio_id: String) -> OperationResult:
 	var file_path := _portfolio_file_path(portfolio_id)
-	if not FileAccess.file_exists(file_path):
-		return OperationResult.fail(ERR_FILE_NOT_FOUND, "Portfolio file does not exist: %s" % portfolio_id)
+	var related_paths := [
+		file_path,
+		file_path + BACKUP_EXTENSION,
+		file_path + TEMP_EXTENSION
+	]
+	var removed_any := false
 
-	var remove_error := DirAccess.remove_absolute(ProjectSettings.globalize_path(file_path))
-	if remove_error != OK:
-		return OperationResult.fail(remove_error, "Cannot delete portfolio file: %s" % error_string(remove_error))
+	for related_path in related_paths:
+		if not FileAccess.file_exists(related_path):
+			continue
+
+		var remove_error := DirAccess.remove_absolute(ProjectSettings.globalize_path(related_path))
+		if remove_error != OK:
+			return OperationResult.fail(remove_error, "Cannot delete portfolio file: %s" % error_string(remove_error))
+
+		removed_any = true
+
+	if not removed_any:
+		return OperationResult.fail(ERR_FILE_NOT_FOUND, "Portfolio file does not exist: %s" % portfolio_id)
 
 	return OperationResult.ok(null, "Portfolio deleted.")
 
@@ -132,6 +145,7 @@ func _write_text_file(file_path: String, text: String) -> Error:
 		return FileAccess.get_open_error()
 
 	file.store_string(text)
+	file.flush()
 	return OK
 
 
